@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"gopkg.in/yaml.v3"
 )
@@ -42,6 +43,36 @@ func Load() (*Config, error) {
 	if err := yaml.Unmarshal(b, &cfg); err != nil {
 		return nil, err
 	}
+	// 环境变量覆盖 (Docker 部署友好)
+	if v := os.Getenv("GOBLOG_PORT"); v != "" {
+		if port, err := strconv.Atoi(v); err == nil {
+			cfg.Server.Port = port
+		}
+	}
+	if v := os.Getenv("GOBLOG_MYSQL_DSN"); v != "" {
+		cfg.MySQL.DSN = v
+	}
+	if v := os.Getenv("GOBLOG_REDIS_ADDR"); v != "" {
+		cfg.Redis.Addr = v
+	}
+	if v := os.Getenv("GOBLOG_REDIS_PASSWORD"); v != "" {
+		cfg.Redis.Password = v
+	}
+	if v := os.Getenv("GOBLOG_REDIS_DB"); v != "" {
+		if db, err := strconv.Atoi(v); err == nil {
+			cfg.Redis.DB = db
+		}
+	}
+	if v := os.Getenv("GOBLOG_JWT_SECRET"); v != "" {
+		cfg.JWT.Secret = v
+	}
+	if v := os.Getenv("GOBLOG_ADMIN_USER"); v != "" {
+		cfg.Admin.DefaultUser = v
+	}
+	if v := os.Getenv("GOBLOG_ADMIN_PASS"); v != "" {
+		cfg.Admin.DefaultPass = v
+	}
+
 	if cfg.Server.Port == 0 {
 		cfg.Server.Port = 8080
 	}

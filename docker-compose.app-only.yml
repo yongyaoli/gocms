@@ -1,0 +1,19 @@
+services:
+  app:
+    build: .
+    container_name: goblog-app-standalone
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      # 请修改以下环境变量以连接到您现有的 MySQL 和 Redis
+      - GOBLOG_PORT=8080
+      # 示例：连接到宿主机 MySQL (如果在本地测试，host.docker.internal 可能有用，或者填写真实 IP)
+      - GOBLOG_MYSQL_DSN=root:your_existing_password@tcp(your_mysql_host:3306)/goblog?charset=utf8mb4&parseTime=True&loc=Local
+      - GOBLOG_REDIS_ADDR=your_redis_host:6379
+      - GOBLOG_REDIS_PASSWORD=your_redis_password
+      - GOBLOG_REDIS_DB=0
+      - GOBLOG_JWT_SECRET=your-secret-key-change-it
+    volumes:
+      - ./logs:/app/logs
+      - ./web/static/uploads:/app/web/static/uploads
